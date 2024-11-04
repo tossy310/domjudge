@@ -905,16 +905,24 @@ class ImportExportService
                                         'added', 'imported from tsv');
                 }
             } elseif (!empty($teamItem['team_affiliation']['externalid'])) {
-                $teamAffiliation = $this->em->getRepository(TeamAffiliation::class)->findOneBy(['externalid' => $teamItem['team_affiliation']['externalid']]);
-                if (!$teamAffiliation) {
+                $teamAffiliation = $this->em->createQueryBuilder()
+                    ->from(TeamAffiliation::class, 'a')
+                    ->select('a')
+                    ->where('a.affilid = ' . $teamItem['team_affiliation']['externalid'])
+                    ->getQuery()
+                    ->getResult();
+                if (count($teamAffiliation) == 0) {
                     $teamAffiliation = new TeamAffiliation();
                     $teamAffiliation
                         ->setExternalid($teamItem['team_affiliation']['externalid'])
-                        ->setName($teamItem['team_affiliation']['externalid'] . ' - auto-create during import');
+                        ->setName($teamItem['team_affiliation']['externalid'] . ' - auto-create during import')
+                        ->setShortname($teamItem['team_affiliation']['externalid'] . ' - auto-create during import');;
                     $this->em->persist($teamAffiliation);
                     $this->dj->auditlog('team_affiliation',
                         $teamAffiliation->getAffilid(),
                         'added', 'imported from tsv / json');
+                } else {
+                    $teamAffiliation = $teamAffiliation[0];
                 }
             }
             $teamItem['team']['affiliation'] = $teamAffiliation;
