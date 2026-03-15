@@ -26,6 +26,9 @@ class ConfigurationService
     /** @var array<string, array<string, string>> $dbConfigCache */
     protected ?array $dbConfigCache = null;
 
+    /** @var array<string, ConfigurationSpecification>|null */
+    private ?array $specCache = null;
+
     public function __construct(
         protected readonly EntityManagerInterface $em,
         protected readonly LoggerInterface $logger,
@@ -115,6 +118,10 @@ class ConfigurationService
      */
     public function getConfigSpecification(): array
     {
+        if ($this->specCache !== null) {
+            return $this->specCache;
+        }
+
         // We use Symfony resource caching so we can load the config on every
         // request without having a performance impact.
         // See https://symfony.com/doc/4.3/components/config/caching.html for
@@ -149,7 +156,7 @@ EOF;
                 // @codeCoverageIgnoreEnd
             });
 
-        return array_map(
+        return $this->specCache = array_map(
             fn(array $item) => ConfigurationSpecification::fromArray($item),
             require $cacheFile
         );
