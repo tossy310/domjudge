@@ -1,7 +1,7 @@
 DOMjudge Programming Contest Judging System
 
-Version 9.0.1DEV
----------------------------
+Version 9.0.1 - 11 June 2026
+----------------------------
  - Backport adding key size to rankcache table.
  - Backport fix to make migration work on MySQL databases.
  - Backport default PHP value for tarball creation.

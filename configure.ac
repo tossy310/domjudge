@@ -11,9 +11,9 @@ AC_DEFUN([AX_WITH_COMMENT], [
 	AC_ARG_WITH([ax_comment_$1],[$2],[],[])
 	])
 
-AC_SUBST(INSTALL_METHOD, git)
+AC_SUBST(INSTALL_METHOD, tarball)
 AC_ARG_WITH(install_method,AS_HELP_STRING([--with-install-method],
-[installation method e.g. debpackage, docker, git, tarball, (default: git).]),
+[installation method e.g. debpackage, docker, git, tarball, (default: tarball).]),
 [if test "x$with_install_method" != x ; then AC_SUBST(INSTALL_METHOD,$with_install_method) fi])
 
 AC_SUBST(FHS_ENABLED,no)
