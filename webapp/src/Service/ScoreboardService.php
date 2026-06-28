@@ -1084,6 +1084,12 @@ class ScoreboardService
             ->from(ScoreCache::class, 's')
             ->select('s')
             ->andWhere('s.contest = :contest')
+            // Skip rows for cells with no activity at all. A full cache rebuild
+            // (refreshCache) writes a scorecache row for every team x problem pair,
+            // so on a sparse scoreboard most rows are empty and would render as a
+            // blank cell anyway. Not hydrating them avoids loading and mapping a
+            // large number of no-op entities on every scoreboard render.
+            ->andWhere('s.submissions_restricted > 0 OR s.submissions_public > 0 OR s.pending_restricted > 0 OR s.pending_public > 0')
             ->setParameter('contest', $contest);
 
         if ($team) {
