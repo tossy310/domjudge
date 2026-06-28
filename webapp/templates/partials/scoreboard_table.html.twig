@@ -131,6 +131,11 @@
     {% set previousTeam = null %}
     {% set backgroundColors = {"#FFFFFF": 1, '#FFFFE0': 1} %}
     {% set medalCount = 0 %}
+    {# Perf: the per-cell submission links below differ only by the team/problem external id.
+       Generate each route once with placeholders here, then substitute per cell, to avoid
+       running the router twice per score cell (thousands of path() calls on a large board). #}
+    {%- set submissionsLinkTpl = public ? path('public_submissions', {teamId: '~DJTID~', problemId: '~DJPID~'}) : null %}
+    {%- set submissionsDataTpl = public ? path('public_submissions_data_cell', {teamId: '~DJTID~', problemId: '~DJPID~'}) : null %}
     {% for score in scores %}
         {% set classes = [] %}
         {% if score.team.category.sortorder != previousSortOrder %}
@@ -329,8 +334,8 @@
                         {% set extra = extra ~ ' data-team-id="' ~ score.team.externalid ~ '"' %}
                         {% set extra = extra ~ ' data-problem-id="' ~ problem.externalid ~ '"' %}
                     {% elseif public %}
-                        {% set link = path('public_submissions', {teamId: score.team.externalid, problemId: problem.externalid}) %}
-                        {% set extra = 'data-submissions-url="' ~ path('public_submissions_data_cell', {teamId: score.team.externalid, problemId: problem.externalid}) ~ '"' %}
+                        {% set link = submissionsLinkTpl | replace({'~DJTID~': score.team.externalid|url_encode, '~DJPID~': problem.externalid|url_encode}) %}
+                        {% set extra = 'data-submissions-url="' ~ (submissionsDataTpl | replace({'~DJTID~': score.team.externalid|url_encode, '~DJPID~': problem.externalid|url_encode})) ~ '"' %}
                         {% set extra = extra ~ ' data-team-id="' ~ score.team.externalid ~ '"' %}
                         {% set extra = extra ~ ' data-problem-id="' ~ problem.externalid ~ '"' %}
                     {% endif %}
