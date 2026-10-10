@@ -38,4 +38,30 @@ class SubmissionControllerTest extends BaseTestCase
             }
         }
     }
+
+    public function testFilterFormSameSite(): void
+    {
+        $this->submitResultFilter([]);
+        self::assertSame(['correct'], json_decode($this->filterCookie() ?? 'null', true)['result'] ?? null);
+    }
+
+    private function filterCookie(): ?string
+    {
+        foreach ($this->client->getResponse()->headers->getCookies() as $cookie) {
+            if ($cookie->getName() === 'domjudge_submissionsfilter') {
+                return $cookie->getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array<string, string> $server
+     */
+    private function submitResultFilter(array $server): void
+    {
+        $this->verifyPageResponse('GET', static::$baseURL, 200);
+        $form = $this->getCurrentCrawler()->selectButton('Apply filters')->form();
+        $this->client->submit($form, ['submissions_filter[result]' => ['correct']], $server);
+    }
 }
